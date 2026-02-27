@@ -1,5 +1,12 @@
+from datetime import datetime, timezone
+
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, length, lower, regexp_replace, split, explode
+
+
+def display_utc_datetime() -> None:
+    now = datetime.now(timezone.utc)
+    print(f"Current UTC date/time: {now.strftime('%Y-%m-%d %H:%M:%S UTC')}")
 
 
 def main() -> None:
@@ -31,4 +38,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    display_utc_datetime()
     main()
