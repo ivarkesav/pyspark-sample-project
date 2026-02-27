@@ -16,7 +16,8 @@ out/
 __pycache__/
 
 # Claude Code
-.claude/
+.claude/*
+!.claude/skills/
 
 # OS files
 .DS_Store
