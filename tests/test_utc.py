@@ -12,4 +12,8 @@ def test_display_utc_datetime(capsys):
         display_utc_datetime()
 
     captured = capsys.readouterr()
-    assert captured.out == "Current UTC date/time: 2025-06-15 12:30:45 UTC\n"
+    assert captured.out == (
+        "----------------------------------------------\n"
+        "Current UTC date/time: 2025-06-15 12:30:45 UTC\n"
+        "----------------------------------------------\n"
+    )
