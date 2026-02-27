@@ -25,7 +25,7 @@ def main() -> None:
     df = spark.createDataFrame(data, ["id", "text"])
 
     words = (
-        df.select(explode(split(lower(regexp_replace(col("text"), r"[^a-zA-Z0-9\\s]", "")), r"\\s+")).alias("word"))
+        df.select(explode(split(lower(regexp_replace(col("text"), r"[^a-zA-Z0-9\s]", "")), r"\s+")).alias("word"))
         .filter(length(col("word")) > 0)
     )
 
