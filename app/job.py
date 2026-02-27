@@ -7,7 +7,7 @@ from pyspark.sql.functions import col, length, lower, regexp_replace, split, exp
 def display_utc_datetime() -> None:
     now = datetime.now(timezone.utc)
     time_str = f"Current UTC date/time: {now.strftime('%Y-%m-%d %H:%M:%S UTC')}"
-    separator = "*" * len(time_str)
+    separator = "%" * len(time_str)
     print(separator)
     print(time_str)
     print(separator)
