@@ -1,0 +1,19 @@
+flowchart TD
+    A[Start job.py] --> B[display_utc_datetime]
+    B --> C[Print current UTC time<br/>with separator lines]
+    C --> D[Create SparkSession<br/>app: LocalPySparkSample]
+    D --> E[Build DataFrame<br/>3 rows of sample text]
+    E --> F[Transform Pipeline]
+
+    subgraph F[Transform Pipeline]
+        direction TB
+        F1[lowercase all text] --> F2[strip special characters]
+        F2 --> F3[split into words]
+        F3 --> F4[explode into rows]
+        F4 --> F5[filter empty strings]
+    end
+
+    F --> G[Group by word & count]
+    G --> H[Order by count desc,<br/>word asc]
+    H --> I[Display results table]
+    I --> J[Stop SparkSession]

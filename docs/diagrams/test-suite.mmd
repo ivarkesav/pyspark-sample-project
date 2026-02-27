@@ -1,0 +1,9 @@
+graph LR
+    subgraph Test Suite
+        T1[test_dataframe_creation<br/>Validates schema & row count]
+        T2[test_word_count<br/>Verifies word frequencies<br/>& special-char stripping]
+        T3[test_display_utc_datetime<br/>Checks formatted output<br/>with separator lines]
+    end
+
+    T1 & T2 -->|uses| SF[SparkSession fixture<br/>local mode]
+    T3 -->|uses| Mock[Mocked datetime]

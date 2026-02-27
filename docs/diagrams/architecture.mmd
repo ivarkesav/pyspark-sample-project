@@ -1,0 +1,13 @@
+graph LR
+    subgraph Docker Network
+        M[Spark Master<br/>:7077 / :8080] -->|registers| W[Spark Worker<br/>:8081]
+        S[spark-submit<br/>container] -->|submits job| M
+        W -->|executes tasks| S
+    end
+
+    subgraph Host
+        A[app/job.py] -->|mounted volume| S
+        SC[scripts/submit.sh] -->|mounted volume| S
+        B[Browser] -->|Master UI :8080| M
+        B -->|Worker UI :8081| W
+    end

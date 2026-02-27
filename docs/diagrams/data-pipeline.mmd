@@ -1,0 +1,11 @@
+flowchart LR
+    subgraph Input
+        R1["(1, 'Spark makes large-scale<br/>data processing simpler')"]
+        R2["(2, 'PySpark lets you use<br/>Python for distributed jobs')"]
+        R3["(3, 'Spark submit can run<br/>jobs locally with Docker')"]
+    end
+
+    Input -->|createDataFrame| DF[DataFrame<br/>id · text]
+    DF -->|lower + regexp_replace<br/>split + explode + filter| Words[Words DataFrame<br/>word]
+    Words -->|groupBy · count<br/>orderBy| Counts[Word Counts<br/>word · count]
+    Counts -->|show| Output["spark: 2<br/>jobs: 2<br/>can: 1<br/>data: 1<br/>..."]

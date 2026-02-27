@@ -1,0 +1,13 @@
+graph TB
+    subgraph docker-compose.yml
+        Master["spark-master<br/>───────────<br/>Ports: 7077, 8080<br/>Image: apache/spark:latest"]
+        Worker["spark-worker<br/>───────────<br/>Port: 8081<br/>1 core · 1 GB RAM"]
+        Submit["spark-submit<br/>───────────<br/>Built from Dockerfile<br/>Runs submit.sh"]
+    end
+
+    Master --- |"spark://spark-master:7077"| Worker
+    Submit --> |"spark-submit --master<br/>spark://spark-master:7077<br/>/opt/spark-apps/job.py"| Master
+
+    Master -.->|depends_on| Worker
+    Submit -.->|depends_on| Master
+    Submit -.->|depends_on| Worker
