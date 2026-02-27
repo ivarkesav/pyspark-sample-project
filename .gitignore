@@ -11,5 +11,12 @@ out/
 *.swo
 *~
 
+# Python / uv
+.venv/
+__pycache__/
+
+# Claude Code
+.claude/
+
 # OS files
 .DS_Store
