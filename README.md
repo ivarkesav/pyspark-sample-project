@@ -10,6 +10,8 @@ graph LR
         M[Spark Master<br/>:7077 / :8080] -->|registers| W[Spark Worker<br/>:8081]
         S[spark-submit<br/>container] -->|submits job| M
         W -->|executes tasks| S
+        H[History Server<br/>:18080] -->|reads| EV[(spark-events<br/>volume)]
+        S -->|writes event logs| EV
     end
 
     subgraph Host
@@ -17,6 +19,7 @@ graph LR
         SC[scripts/submit.sh] -->|mounted volume| S
         B[Browser] -->|Master UI :8080| M
         B -->|Worker UI :8081| W
+        B -->|History UI :18080| H
     end
 ```
 
@@ -34,7 +37,7 @@ pyspark-sample-project/
 │   │   └── log4j2.properties  # Suppresses noisy Spark logs in tests
 │   ├── test_spark.py          # DataFrame creation & word-count tests
 │   └── test_utc.py            # UTC datetime display test
-├── docker-compose.yml         # Master, Worker, Submit services
+├── docker-compose.yml         # Master, Worker, Submit, History services
 ├── Dockerfile                 # Extends apache/spark image
 ├── pyproject.toml             # Project metadata & dependencies
 ├── uv.lock                    # Locked dependency versions
@@ -89,10 +92,14 @@ graph TB
         Master["spark-master<br/>───────────<br/>Ports: 7077, 8080<br/>Image: apache/spark:latest"]
         Worker["spark-worker<br/>───────────<br/>Port: 8081<br/>1 core · 1 GB RAM"]
         Submit["spark-submit<br/>───────────<br/>Built from Dockerfile<br/>Runs submit.sh"]
+        History["spark-history<br/>───────────<br/>Port: 18080<br/>Reads event logs"]
+        Events[("spark-events<br/>───────────<br/>Named volume")]
     end
 
     Master --- |"spark://spark-master:7077"| Worker
     Submit --> |"spark-submit --master<br/>spark://spark-master:7077<br/>/opt/spark-apps/job.py"| Master
+    Submit -->|writes event logs| Events
+    History -->|reads event logs| Events
 
     Master -.->|depends_on| Worker
     Submit -.->|depends_on| Master
@@ -110,8 +117,8 @@ graph TB
 # Build the spark-submit image
 docker compose build
 
-# Start the Spark cluster
-docker compose up -d spark-master spark-worker
+# Start the Spark cluster and history server
+docker compose up -d spark-master spark-worker spark-history
 
 # Submit the PySpark job
 docker compose run --rm spark-submit
@@ -176,6 +183,7 @@ While the cluster is running:
 |---|---|
 | Master | [http://localhost:8080](http://localhost:8080) |
 | Worker | [http://localhost:8081](http://localhost:8081) |
+| History Server | [http://localhost:18080](http://localhost:18080) |
 
 ## Stop and Clean Up
 
@@ -191,7 +199,7 @@ The default image is `apache/spark:latest` (set in `.env`). Override it with the
 
 ```bash
 SPARK_IMAGE=apache/spark:<tag> docker compose build
-SPARK_IMAGE=apache/spark:<tag> docker compose up -d spark-master spark-worker
+SPARK_IMAGE=apache/spark:<tag> docker compose up -d spark-master spark-worker spark-history
 SPARK_IMAGE=apache/spark:<tag> docker compose run --rm spark-submit
 ```
 
