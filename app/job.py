@@ -1,6 +1,11 @@
 """PySpark word count job with UTC timestamp display."""
 
+import os
 from datetime import datetime, timezone
+from pathlib import Path
+
+os.environ.setdefault("SPARK_LOCAL_IP", "127.0.0.1")
+os.environ.setdefault("SPARK_CONF_DIR", str(Path(__file__).parent / "spark-conf"))
 
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, length, lower, regexp_replace, split, explode
@@ -20,8 +25,11 @@ def main() -> None:
     spark = (
         SparkSession.builder.appName("LocalPySparkSample")
         .config("spark.sql.shuffle.partitions", "2")
+        .config("spark.driver.host", "localhost")
+        .config("spark.ui.showConsoleProgress", "false")
         .getOrCreate()
     )
+    spark.sparkContext.setLogLevel("ERROR")
 
     data = [
         (1, "Spark makes large-scale data processing simpler"),
