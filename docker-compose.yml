@@ -14,6 +14,11 @@ services:
     ports:
       - "7077:7077"
       - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080 || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     volumes:
       - ./app:/opt/spark-apps
 
@@ -21,7 +26,8 @@ services:
     image: ${SPARK_IMAGE:-apache/spark:latest}
     container_name: spark-worker
     depends_on:
-      - spark-master
+      spark-master:
+        condition: service_healthy
     command:
       - /opt/spark/bin/spark-class
       - org.apache.spark.deploy.worker.Worker
@@ -34,6 +40,11 @@ services:
       - 1g
     ports:
       - "8081:8081"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8081 || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     volumes:
       - ./app:/opt/spark-apps
 
@@ -45,12 +56,36 @@ services:
         SPARK_IMAGE: ${SPARK_IMAGE:-apache/spark:latest}
     container_name: spark-submit
     depends_on:
-      - spark-master
-      - spark-worker
+      spark-master:
+        condition: service_healthy
+      spark-worker:
+        condition: service_healthy
     environment:
       - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_EVENTS_DIR=/tmp/spark-events
     volumes:
       - ./app:/opt/spark-apps
       - ./scripts:/opt/spark-scripts
+      - spark-events:/tmp/spark-events
     entrypoint: ["/bin/bash", "-lc"]
     command: ["/opt/spark-scripts/submit.sh"]
+
+  spark-history:
+    image: ${SPARK_IMAGE:-apache/spark:latest}
+    container_name: spark-history
+    user: root
+    depends_on:
+      spark-master:
+        condition: service_healthy
+    command:
+      - /opt/spark/bin/spark-class
+      - org.apache.spark.deploy.history.HistoryServer
+    ports:
+      - "18080:18080"
+    environment:
+      - SPARK_HISTORY_OPTS=-Dspark.history.fs.logDirectory=/tmp/spark-events
+    volumes:
+      - spark-events:/tmp/spark-events
+
+volumes:
+  spark-events:
