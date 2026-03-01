@@ -1,3 +1,5 @@
+"""PySpark word count job with UTC timestamp display."""
+
 from datetime import datetime, timezone
 
 from pyspark.sql import SparkSession
@@ -14,6 +16,7 @@ def display_utc_datetime() -> None:
 
 
 def main() -> None:
+    """Run the PySpark word count job and display results."""
     spark = (
         SparkSession.builder.appName("LocalPySparkSample")
         .config("spark.sql.shuffle.partitions", "2")
